@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ElDevoraCucas</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header class="header">
+      <h1>ElDevoraCucas <span class="brand-emoji" aria-hidden="true">🍪</span></h1>
+      <p class="intro">Export cookies for networks supported by scrapmf.</p>
+    </header>
+
+    <section class="networks" aria-labelledby="networks-title">
+      <h2 id="networks-title">Networks</h2>
+      <details class="dropdown" id="network-dropdown">
+        <summary id="network-summary">Networks (all selected)</summary>
+        <div class="dropdown-panel">
+          <label class="network all">
+            <input type="checkbox" value="all" checked>
+            <span>All supported networks</span>
+          </label>
+          <label class="network instagram">
+            <input type="checkbox" value="instagram" checked>
+            <span>Instagram</span>
+          </label>
+          <label class="network tiktok">
+            <input type="checkbox" value="tiktok" checked>
+            <span>TikTok</span>
+          </label>
+          <label class="network twitter">
+            <input type="checkbox" value="twitter" checked>
+            <span>Twitter/X</span>
+          </label>
+          <label class="network vsco">
+            <input type="checkbox" value="vsco" checked>
+            <span>VSCO</span>
+          </label>
+          <label class="network threads">
+            <input type="checkbox" value="threads" checked>
+            <span>Threads</span>
+          </label>
+          <label class="network facebook">
+            <input type="checkbox" value="facebook" checked>
+            <span>Facebook</span>
+          </label>
+        </div>
+      </details>
+    </section>
+
+    <section class="filename">
+      <label for="export-file-name">File name</label>
+      <input id="export-file-name" type="text" value="cookies" autocomplete="off">
+    </section>
+
+    <section class="actions">
+      <button id="download" type="button">Download cookies.txt</button>
+      <button id="copy" type="button" class="secondary">Copy to clipboard</button>
+      <button id="open-implant" type="button" class="secondary">Open Implant Page</button>
+    </section>
+
+    <p id="export-status" role="status" aria-live="polite"></p>
+  </main>
+
+  <footer class="credit">by MFApplications</footer>
+
+  <script src="../lib/cookies.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

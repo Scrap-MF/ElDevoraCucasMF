@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ElDevoraCucas - Implant cookies</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <h1>Implant cookies <span class="brand-emoji" aria-hidden="true">🍪</span></h1>
+    <p class="intro">Implant cookies from a Netscape cookies.txt file into this browser.</p>
+
+    <section class="text-picker">
+      <label for="cookie-text">Cookie text (Netscape)</label>
+      <textarea id="cookie-text" rows="8" placeholder="Paste cookies.txt content here"></textarea>
+    </section>
+
+    <section class="actions">
+      <button id="paste-clipboard" type="button" class="secondary">Paste from clipboard</button>
+      <button id="implant" type="button">Implant cookies</button>
+    </section>
+
+    <section class="file-picker">
+      <label for="cookie-file">Or choose file (.txt)</label>
+      <input id="cookie-file" type="file" accept=".txt,text/plain">
+    </section>
+
+    <section class="drop-zone" id="drop-zone" tabindex="0">
+      <span>Drop cookies.txt here</span>
+    </section>
+
+    <p id="import-status" role="status" aria-live="polite"></p>
+
+    <section class="shortcut">
+      <h2>Keyboard shortcut</h2>
+      <p id="shortcut-value">Loading shortcut...</p>
+      <label class="shortcut-toggle">
+        <input type="checkbox" id="shortcut-enabled" checked>
+        <span>Enable shortcut</span>
+      </label>
+      <div class="actions">
+        <button id="change-shortcut" type="button" class="secondary">Change shortcut</button>
+        <button id="test-shortcut" type="button" class="secondary">Test download</button>
+      </div>
+      <p class="help">
+        Firefox does not allow extensions to change shortcuts by code. Use the button to open Firefox shortcut settings.
+      </p>
+    </section>
+  </main>
+
+  <footer class="credit">by MFApplications</footer>
+
+  <script src="../lib/cookies.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
