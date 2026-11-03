@@ -8,7 +8,9 @@ const exportFileNameInput = document.getElementById("export-file-name");
 const exportStatus = document.getElementById("export-status");
 
 const exportButton = document.getElementById("download");
+const exportJsonButton = document.getElementById("download-json");
 const copyButton = document.getElementById("copy");
+const exportJsonLabel = exportJsonButton ? exportJsonButton.textContent : "Download cookies.json";
 const openImplantButton = document.getElementById("open-implant");
 const exportLabel = exportButton.textContent;
 const copyLabel = copyButton.textContent;
@@ -22,15 +24,7 @@ function selectedNetworks() {
       return input.value;
     });
 
-  if (values.indexOf("all") !== -1) {
-    return api.NETWORKS.map(function (network) {
-      return network.id;
-    });
-  }
-
-  return values.filter(function (value) {
-    return value !== "all";
-  });
+  return api.resolveSelectedNetworks(values);
 }
 
 function updateSummary() {
@@ -49,6 +43,9 @@ function updateActionButtons() {
   const disabled = selectedNetworks().length === 0;
   if (exportButton) {
     exportButton.disabled = disabled;
+  }
+  if (exportJsonButton) {
+    exportJsonButton.disabled = disabled;
   }
   if (copyButton) {
     copyButton.disabled = disabled;
@@ -135,7 +132,7 @@ networkInputs.forEach(function (input) {
   });
 });
 
-updateSummary();
+// Buttons stay disabled until preferences are loaded (see loadPreferences).
 
 if (exportFileNameInput) {
   exportFileNameInput.addEventListener("input", savePreferences);
@@ -201,6 +198,27 @@ exportButton.addEventListener("click", async function () {
   exportStatus.textContent = "Downloaded " + filename + " (" + result.count + " cookies).";
   resetButton(exportButton, exportLabel);
 });
+
+if (exportJsonButton) {
+  exportJsonButton.addEventListener("click", async function () {
+    setButtonState(exportJsonButton, "loading", "Downloading...");
+    const result = await exportCookies();
+    if (!result) {
+      setButtonState(exportJsonButton, "error", "Failed");
+      resetButton(exportJsonButton, exportJsonLabel);
+      return;
+    }
+    // Re-export as JSON to preserve sameSite/firstPartyDomain/storeId
+    const cookies = await browser.cookies.getAll({});
+    const filtered = api.filterCookies(cookies, selectedNetworks());
+    const filename = api.forceJson(exportFileNameInput.value.replace(/\.txt$/i, ""));
+    api.downloadText(filename, api.toJSON(filtered));
+    await new Promise(function (resolve) { setTimeout(resolve, 1200); });
+    setButtonState(exportJsonButton, "success", "Downloaded");
+    exportStatus.textContent = "Downloaded " + filename + " (" + result.count + " cookies).";
+    resetButton(exportJsonButton, exportJsonLabel);
+  });
+}
 
 copyButton.addEventListener("click", async function () {
   const result = await exportCookies();

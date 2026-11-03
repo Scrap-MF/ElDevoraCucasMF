@@ -58,4 +58,57 @@ const hostOnlyOptions = api.toCookieSetOptions(parsed.cookies[1]);
 assert.equal(hostOnlyOptions.url, "http://example.org/");
 assert.equal(Object.prototype.hasOwnProperty.call(hostOnlyOptions, "domain"), false);
 
+// B4/B5: trim + comments skipped
+const parsed2 = api.parseNetscape(
+  "  # stray comment  \n" +
+  "#HttpOnly_.x.com\tTRUE\t/\tTRUE\t100\tname\tval\n"
+);
+assert.equal(parsed2.cookies.length, 1);
+assert.equal(parsed2.cookies[0].domain, ".x.com");
+assert.equal(parsed2.cookies[0].httpOnly, true);
+assert.equal(parsed2.cookies[0].value, "val");
+
+// B9: "all"
+const allFiltered = api.filterCookies(
+  [{ domain: ".instagram.com", hostOnly: false, path: "/", secure: true, session: false, expirationDate: 1, httpOnly: false, name: "n", value: "v" }],
+  ["all"]
+);
+assert.equal(allFiltered.length, 1);
+
+// forceTxt edge
+assert.equal(api.forceTxt("<<<"), "cookies.txt");
+assert.equal(api.forceTxt("___"), "cookies.txt");
+
+// toCookieSetOptions expirationDate fallback (B3)
+const opts2 = api.toCookieSetOptions({ domain: "x.com", hostOnly: true, path: "/", secure: false, expirationDate: 200, name: "n", value: "v", httpOnly: false });
+assert.equal(opts2.expirationDate, 200);
+
+// Implant-related: parse + supported domain filtering
+const implantParsed = api.parseNetscape(
+  "#HttpOnly_.instagram.com\tTRUE\t/\tTRUE\t100\tsessionid\tabc\n" +
+  "example.org\tFALSE\t/\tFALSE\t0\tignored\tignored\n"
+);
+const supported = implantParsed.cookies.filter(function (c) { return api.isSupportedDomain(c.domain); });
+assert.equal(supported.length, 1);
+assert.equal(api.networkForDomain(supported[0].domain).id, "instagram");
+
+// resolveSelectedNetworks (popup selection logic extracted)
+assert.deepEqual(api.resolveSelectedNetworks(["instagram", "all"]), api.NETWORKS.map(function (n) { return n.id; }));
+assert.deepEqual(api.resolveSelectedNetworks(["instagram", "tiktok"]), ["instagram", "tiktok"]);
+assert.deepEqual(api.resolveSelectedNetworks([]), []);
+
+// JSON format round-trip
+const jsonText = api.toJSON([{ domain: ".instagram.com", hostOnly: false, path: "/", secure: true, session: false, expirationDate: 100, httpOnly: true, name: "s", value: "v", sameSite: "lax", firstPartyDomain: "instagram.com", storeId: "firefox-default" }]);
+const jsonParsed = api.parseJSON(jsonText);
+assert.equal(jsonParsed.cookies.length, 1);
+assert.equal(jsonParsed.cookies[0].sameSite, "lax");
+assert.equal(jsonParsed.cookies[0].firstPartyDomain, "instagram.com");
+assert.equal(jsonParsed.cookies[0].storeId, "firefox-default");
+const opts3 = api.toCookieSetOptions(jsonParsed.cookies[0]);
+assert.equal(opts3.sameSite, "lax");
+assert.equal(opts3.firstPartyDomain, "instagram.com");
+assert.equal(opts3.storeId, "firefox-default");
+assert.equal(api.forceJson("data"), "data.json");
+assert.equal(api.forceJson("x.json"), "x.json");
+
 console.log("cookies tests passed");

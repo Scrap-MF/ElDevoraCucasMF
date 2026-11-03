@@ -159,7 +159,14 @@ implantButton.addEventListener("click", async function () {
 
   setButtonState(implantButton, "loading", "Implanting...");
   try {
-    const parsed = api.parseNetscape(text);
+    let parsed = api.parseNetscape(text);
+    const trimmed = text.trim();
+    if (parsed.cookies.length === 0 && (trimmed.charAt(0) === "[" || trimmed.charAt(0) === "{")) {
+      const jsonParsed = api.parseJSON(text);
+      if (jsonParsed.cookies.length > 0) {
+        parsed = jsonParsed;
+      }
+    }
     const supported = parsed.cookies.filter(function (cookie) {
       return api.isSupportedDomain(cookie.domain);
     });
@@ -195,22 +202,18 @@ implantButton.addEventListener("click", async function () {
     if (failed === 0) {
       setButtonState(implantButton, "success", "Implanted");
       status.textContent = "Implanted " + success + " cookies.";
-      window.alert("Implanted " + success + " cookies.");
     } else if (success > 0) {
       setButtonState(implantButton, "success", "Partial");
       status.textContent = "Implanted " + success + " cookies; " + failed + " failed. First error: " + firstError;
-      window.alert("Implanted " + success + " cookies; " + failed + " failed.\nFirst error: " + firstError);
     } else {
       setButtonState(implantButton, "error", "Failed");
       status.textContent = "Failed to implant cookies. First error: " + firstError;
-      window.alert("Failed to implant cookies.\nFirst error: " + firstError);
     }
   } catch (error) {
     setButtonState(implantButton, "error", "Failed");
     const message = error && error.message ? error.message : "Failed to implant cookies.";
     status.textContent = message;
     console.error("Implant failed:", error);
-    window.alert(message);
   }
 
   resetButton(implantButton, implantLabel);
@@ -268,6 +271,24 @@ if (testShortcutButton) {
   });
 }
 
+const testShortcutJsonButton = document.getElementById("test-shortcut-json");
+if (testShortcutJsonButton) {
+  testShortcutJsonButton.addEventListener("click", async function () {
+    status.textContent = "Testing JSON download...";
+    try {
+      const response = await browser.runtime.sendMessage({ type: "download-cookies-json" });
+      if (response && response.ok) {
+        status.textContent = "Test JSON download completed.";
+      } else {
+        status.textContent = "Test JSON download failed: " + (response && response.error ? response.error : "unknown error");
+      }
+    } catch (error) {
+      status.textContent = "Test JSON download failed: " + (error && error.message ? error.message : String(error));
+      console.error("Test JSON download failed:", error);
+    }
+  });
+}
+
 if (changeShortcutButton) {
   changeShortcutButton.addEventListener("click", function () {
     browser.tabs.create({ url: "about:addons" }).catch(function (error) {
@@ -283,8 +304,13 @@ async function handlePendingDownload() {
     return;
   }
 
-  const result = await browser.storage.local.get("pendingDownload");
-  const pending = result.pendingDownload;
+  const storage = (browser.storage && browser.storage.session) ? browser.storage.session : browser.storage.local;
+  let result = await storage.get("pendingDownload");
+  let pending = result.pendingDownload;
+  if (!pending || !pending.text) {
+    result = await browser.storage.local.get("pendingDownload");
+    pending = result.pendingDownload;
+  }
   if (!pending || !pending.text) {
     return;
   }
@@ -300,6 +326,9 @@ async function handlePendingDownload() {
   }, 1000);
 
   await browser.storage.local.remove("pendingDownload");
+  if (browser.storage.session) {
+    await browser.storage.session.remove("pendingDownload");
+  }
   if (status) {
     status.textContent = "Downloaded " + (pending.filename || "cookies.txt") + " from shortcut.";
   }

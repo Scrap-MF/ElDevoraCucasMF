@@ -40,7 +40,9 @@ replaced.
 
 ## ⌨️ Shortcut
 
-`Ctrl+Shift+F12` exports from any supported site without opening the popup.
+`Ctrl+Shift+F12` exports from any supported site without opening the popup as a
+Netscape `cookies.txt`. `Ctrl+Shift+F11` does the same but writes a `cookies.json`
+that preserves extra attributes such as `sameSite`.
 
 Firefox owns the binding. Change it at `about:addons`, gear icon next to
 ElDevoraCucas, **Manage Extension Shortcuts**.
@@ -106,7 +108,7 @@ step: `manifest.json` at the root is the extension.
 To rebuild the package:
 
 ```bash
-zip -r -X ElDevoraCucasMF.xpi manifest.json background.js content.js lib icons options popup README.md tests LICENSE
+zip -r -X ElDevoraCucasMF.xpi manifest.json background.js lib icons options popup LICENSE
 ```
 
 `manifest.json` has to sit at the archive root or Firefox rejects the file.

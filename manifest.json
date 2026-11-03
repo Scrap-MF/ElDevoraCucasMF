@@ -50,9 +50,14 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "eldevoracucas@mfapplications",
-      "strict_min_version": "109.0"
+      "strict_min_version": "126.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     },
-    "gecko_android": {}
+    "gecko_android": {
+      "strict_min_version": "126.0"
+    }
   },
   "options_page": "options/options.html",
   "background": {
@@ -66,36 +71,13 @@
       "suggested_key": {
         "default": "Ctrl+Shift+F12"
       },
-      "description": "Download scrapmf cookies"
+      "description": "Download scrapmf cookies (Netscape txt)"
+    },
+    "download-cookies-json": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F11"
+      },
+      "description": "Download scrapmf cookies (JSON)"
     }
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "*://*.instagram.com/*",
-        "*://instagram.com/*",
-        "*://*.tiktok.com/*",
-        "*://tiktok.com/*",
-        "*://*.twitter.com/*",
-        "*://twitter.com/*",
-        "*://*.x.com/*",
-        "*://x.com/*",
-        "*://*.vsco.co/*",
-        "*://vsco.co/*",
-        "*://*.threads.com/*",
-        "*://threads.com/*",
-        "*://*.threads.net/*",
-        "*://threads.net/*",
-        "*://*.facebook.com/*",
-        "*://facebook.com/*",
-        "*://*.fb.com/*",
-        "*://fb.com/*",
-        "*://m.facebook.com/*"
-      ],
-      "js": [
-        "content.js"
-      ],
-      "run_at": "document_idle"
-    }
-  ]
+  }
 }
